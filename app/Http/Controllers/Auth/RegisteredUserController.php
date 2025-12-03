@@ -31,20 +31,25 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+            'role' => ['required', 'in:user,owner'], // Validasi Role
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => $request->role, // Simpan Role
         ]);
 
         event(new Registered($user));
-
         Auth::login($user);
 
-        return redirect(route('dashboard', absolute: false));
+        // Redirect Sesuai Role
+        if ($user->role === 'owner') {
+            return redirect()->route('owner.dashboard')->with('success', 'Registrasi Mitra Berhasil!');
+        }
+        return redirect(route('landing', absolute: false))->with('success', 'Registrasi Berhasil!');
     }
 }
