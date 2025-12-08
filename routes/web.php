@@ -2,8 +2,9 @@
 
     use Illuminate\Support\Facades\Route;
     use App\Http\Controllers\TambalBanController;
-    use App\Models\TambalBan; // Pastikan Model di-import
+    use App\Models\TambalBan; 
     use App\Http\Controllers\OrderController;
+    use App\Http\Controllers\OwnerController;
 
     /*
     |--------------------------------------------------------------------------
@@ -72,6 +73,13 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/chat/{order_id}', [App\Http\Controllers\ChatController::class, 'show'])->name('chat.show');
     Route::post('/chat/{order_id}/send', [App\Http\Controllers\ChatController::class, 'send'])->name('chat.send');
     Route::get('/chat/{order_id}/get', [App\Http\Controllers\ChatController::class, 'getMessages'])->name('chat.get');
+});
+
+// ROUTE OWNER
+Route::middleware(['auth', 'isOwner'])->prefix('owner')->group(function () {
+    Route::get('/dashboard', [OwnerController::class, 'index'])->name('owner.dashboard');
+    Route::get('/order/{id}', [OwnerController::class, 'show'])->name('owner.order.show');
+    Route::post('/order/{id}/update', [OwnerController::class, 'updateStatus'])->name('owner.order.update');
 });
 
 require __DIR__.'/auth.php';
