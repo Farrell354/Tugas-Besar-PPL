@@ -13,6 +13,7 @@ public function up(): void
 {
     Schema::create('tambal_bans', function (Blueprint $table) {
         $table->id();
+        $table->foreignId('user_id')->nullable()->constrained()->onDelete('cascade');
         $table->string('nama_bengkel');
         $table->string('alamat')->nullable();
         $table->string('latitude');  // Menyimpan koordinat
