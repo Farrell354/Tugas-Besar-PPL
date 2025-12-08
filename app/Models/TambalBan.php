@@ -35,8 +35,7 @@ class TambalBan extends Model
         return $this->reviews()->avg('rating') ?? 0;
     }
 
-    public function owner()
-    {
-        return $this->belongsTo(User::class, 'user_id');
+   public function owner() {
+    return $this->belongsTo(User::class, 'user_id');
     }
 }
