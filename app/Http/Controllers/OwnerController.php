@@ -68,3 +68,4 @@ class OwnerController extends Controller
         return view('owner.show', compact('order'));
     }
 }
+
