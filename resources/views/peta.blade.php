@@ -93,7 +93,7 @@
 
 <body class="antialiased relative h-screen w-screen">
 
-<div class="absolute top-5 left-5 z-[1000] pointer-events-none flex flex-col gap-3">
+    <div class="absolute top-5 left-5 z-[1000] pointer-events-none flex flex-col gap-3">
 
         <div class="pointer-events-auto">
             <a href="{{ route('landing') }}" class="group bg-white/90 backdrop-blur-md text-gray-700 hover:text-blue-600 px-4 py-2.5 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-105 border border-white/50 w-fit">
@@ -103,17 +103,6 @@
                 <span class="font-bold text-sm pr-1">Home</span>
             </a>
         </div>
-
-        @auth
-        <div class="pointer-events-auto">
-            <a href="{{ route('booking.history') }}" class="group bg-white/90 backdrop-blur-md text-gray-700 hover:text-green-600 px-4 py-2.5 rounded-full shadow-lg flex items-center gap-3 transition-all transform hover:scale-105 border border-white/50 w-fit">
-                <div class="bg-green-100 text-green-600 rounded-full h-8 w-8 flex items-center justify-center group-hover:bg-green-600 group-hover:text-white transition">
-                    <i class="fa-solid fa-clock-rotate-left"></i>
-                </div>
-                <span class="font-bold text-sm pr-1">Riwayat</span>
-            </a>
-        </div>
-        @endauth
 
     </div>
 
@@ -201,8 +190,6 @@
         L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap' }).addTo(map);
 
         // VARIABEL GLOBAL
-        var isLoggedIn = {{ Auth::check() ? 'true' : 'false' }};
-        var loginUrl = "{{ route('login') }}";
         var locations = @json($lokasi);
         var markers = [];
         var userMarker = null;
@@ -216,55 +203,8 @@
             return number;
         }
 
-        // FUNGSI HANDLE SUBMIT REVIEW (AJAX)
-        function submitReview(event, pointId) {
-            event.preventDefault(); // Mencegah reload halaman
-
-            var form = event.target;
-            var formData = new FormData(form);
-            var btn = form.querySelector('button');
-
-            // Ubah tombol jadi loading
-            var originalText = btn.innerText;
-            btn.innerText = 'Mengirim...';
-            btn.disabled = true;
-
-            fetch("{{ route('review.store') }}", {
-                method: "POST",
-                body: formData,
-                headers: {
-                    "X-Requested-With": "XMLHttpRequest"
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    // 1. Update Data Lokal (locations)
-                    var pointIndex = locations.findIndex(l => l.id == pointId);
-                    if(pointIndex !== -1) {
-                        // Tambahkan review baru ke array lokal
-                        if (!locations[pointIndex].reviews) locations[pointIndex].reviews = [];
-                        locations[pointIndex].reviews.push(data.data);
-
-                        // 2. Render Ulang Sidebar agar review muncul
-                        showDetailSidebar(locations[pointIndex]);
-
-                        // 3. Notifikasi Sukses
-                        const Toast = Swal.mixin({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
-                        Toast.fire({ icon: 'success', title: 'Ulasan diterbitkan!' });
-                    }
-                }
-            })
-            .catch(error => {
-                console.error('Error:', error);
-                Swal.fire('Error', 'Gagal mengirim ulasan.', 'error');
-                btn.innerText = originalText;
-                btn.disabled = false;
-            });
-        }
-
         // ============================================================
-        // FUNGSI 1: TAMPILKAN DETAIL DI SIDEBAR (FITUR BARU)
+        // FUNGSI 1: TAMPILKAN DETAIL DI SIDEBAR
         // ============================================================
         function showDetailSidebar(point) {
             var container = document.getElementById('sidebarContent');
@@ -284,56 +224,6 @@
             var mapLink = `http://googleusercontent.com/maps.google.com/maps?q=${point.latitude},${point.longitude}`;
             var orderUrl = "{{ url('/booking') }}/" + point.id;
 
-            // Hitung Rating & Render Review List
-            var count = point.reviews ? point.reviews.length : 0;
-            var rating = 0;
-            var reviewsHtml = '';
-
-            if (count > 0) {
-                var total = point.reviews.reduce((acc, rev) => acc + rev.rating, 0);
-                rating = (total / count).toFixed(1);
-
-                // Urutkan review terbaru di atas (reverse)
-                var sortedReviews = [...point.reviews].reverse();
-
-                reviewsHtml = sortedReviews.map(r => `
-                    <div class="border-b border-gray-100 pb-2 mb-2 last:border-0">
-                        <div class="flex items-center justify-between">
-                            <span class="font-bold text-xs text-gray-700">${r.user ? r.user.name : 'Anda'}</span>
-                            <span class="text-xs text-yellow-500"><i class="fa-solid fa-star"></i> ${r.rating}</span>
-                        </div>
-                        <p class="text-xs text-gray-600 mt-1">"${r.komentar || ''}"</p>
-                    </div>
-                `).join('');
-            } else {
-                reviewsHtml = '<p class="text-xs text-gray-400 italic text-center py-2">Belum ada ulasan. Jadilah yang pertama!</p>';
-            }
-
-            var stars = '';
-            for(let i=1; i<=5; i++) stars += i <= rating ? '<i class="fa-solid fa-star text-yellow-400"></i>' : '<i class="fa-regular fa-star text-gray-300"></i>';
-
-            // Form Review (AJAX)
-            var reviewForm = isLoggedIn ? `
-                <div class="mt-4 bg-gray-50 p-3 rounded-xl border border-gray-200">
-                    <h4 class="font-bold text-sm text-gray-700 mb-2">Tulis Ulasan</h4>
-                    <form onsubmit="submitReview(event, ${point.id})" class="space-y-2">
-                        <input type="hidden" name="_token" value="{{ csrf_token() }}">
-                        <input type="hidden" name="tambal_ban_id" value="${point.id}">
-                        <div class="flex items-center gap-2">
-                            <select name="rating" class="text-xs border-gray-300 rounded p-1 w-20 focus:ring-blue-500">
-                                <option value="5">5 ⭐</option><option value="4">4 ⭐</option><option value="3">3 ⭐</option><option value="2">2 ⭐</option><option value="1">1 ⭐</option>
-                            </select>
-                            <input type="text" name="komentar" class="flex-1 text-xs border-gray-300 rounded p-1 focus:ring-blue-500" placeholder="Komentar..." required>
-                        </div>
-                        <button type="submit" class="w-full bg-blue-600 text-white text-xs py-1.5 rounded font-bold hover:bg-blue-700 transition">Kirim Ulasan</button>
-                    </form>
-                </div>
-            ` : `
-                <div class="mt-4 text-center">
-                    <a href="${loginUrl}" class="text-xs text-blue-600 font-bold hover:underline">Login untuk menulis ulasan</a>
-                </div>
-            `;
-
             container.innerHTML = `
                 <div class="animate-pulse-soft pb-10">
                     <button onclick="renderSidebar(currentList)" class="mb-3 flex items-center gap-2 text-gray-500 hover:text-blue-600 transition text-sm font-bold">
@@ -349,8 +239,6 @@
 
                     <h2 class="text-xl font-bold text-gray-900 leading-tight mb-1">${point.nama_bengkel}</h2>
                     <div class="flex items-center gap-2 mb-3">
-                        <div class="flex text-xs">${stars}</div>
-                        <span class="text-xs text-gray-500">(${count} ulasan)</span>
                         ${statusBadge}
                     </div>
 
@@ -371,25 +259,14 @@
                             <i class="fa-solid fa-cart-shopping text-lg"></i> PESAN JASA KE RUMAH
                         </a>
                     </div>
-
-                    <div class="border-t border-gray-200 pt-4">
-                        <h3 class="font-bold text-gray-800 mb-3 flex items-center gap-2">
-                            <i class="fa-regular fa-comments"></i> Ulasan Pengguna
-                        </h3>
-                        <div class="max-h-60 overflow-y-auto pr-1 custom-scrollbar space-y-2">
-                            ${reviewsHtml}
-                        </div>
-                        ${reviewForm}
-                    </div>
                 </div>
             `;
         }
 
         // ============================================================
-        // 2. CREATE MARKER (UPDATE: Klik Marker -> Buka Sidebar)
+        // 2. CREATE MARKER
         // ============================================================
         function createMarker(point) {
-            // Kita sederhanakan popup marker karena detail lengkap ada di sidebar
             var smallPopup = `
                 <div class="text-center p-1">
                     <h3 class="font-bold text-gray-800 text-sm">${point.nama_bengkel}</h3>
@@ -403,10 +280,8 @@
 
             var marker = L.marker([point.latitude, point.longitude]).addTo(map).bindPopup(smallPopup);
 
-            // Event Klik Marker -> Buka Sidebar Detail
             marker.on('click', function() {
                 showDetailSidebar(point);
-                // Di mobile, pastikan sidebar terbuka
                 document.getElementById('rightSidebar').classList.remove('translate-x-full');
             });
 
@@ -419,7 +294,7 @@
         // 3. RENDER SIDEBAR LIST (DEFAULT VIEW)
         // ============================================================
         function renderSidebar(data) {
-            currentList = data; // Simpan state list saat ini
+            currentList = data;
             var container = document.getElementById('sidebarContent');
             container.innerHTML = '';
             document.getElementById('resultCount').innerText = data.length;
@@ -436,7 +311,6 @@
                 var div = document.createElement('div');
                 div.className = "relative group bg-white p-4 rounded-xl shadow-sm border border-gray-100 hover:border-blue-400 hover:shadow-md transition-all cursor-pointer";
 
-                // KLIK LIST -> ZOOM & BUKA DETAIL
                 div.onclick = () => {
                     focusLocation(item.latitude, item.longitude);
                     showDetailSidebar(item);
@@ -489,7 +363,6 @@
 
         function focusLocation(lat, lng) {
             map.flyTo([lat, lng], 17, { duration: 1.2 });
-            // Di desktop sidebar tetap buka, di mobile biar user liat detail
             if(window.innerWidth < 640) openSidebar();
         }
 
