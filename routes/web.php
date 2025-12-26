@@ -70,4 +70,11 @@
         Route::get('/order/{id}', [App\Http\Controllers\OwnerController::class, 'show'])->name('owner.order.show');
     });
 
+    // ROUTE CHAT
+    Route::middleware(['auth'])->group(function () {
+    Route::get('/chat/{order_id}', [ChatController::class, 'show'])->name('chat.show');
+    Route::post('/chat/{order_id}/send', [ChatController::class, 'send'])->name('chat.send');
+    Route::get('/chat/{order_id}/get', [ChatController::class, 'getMessages'])->name('chat.get');
+    });
+
     require __DIR__ . '/auth.php';
