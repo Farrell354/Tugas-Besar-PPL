@@ -27,21 +27,29 @@ class AuthenticatedSessionController extends Controller
         $request->authenticate();
         $request->session()->regenerate();
 
-        // LOGIKA REDIRECT
-        if ($request->user()->role === 'admin') {
-            return redirect()->intended('/admin/dashboard');
+        $role = $request->user()->role;
+
+        // 1. Redirect Admin
+        if ($role === 'admin') {
+            return redirect()->intended('/admin/dashboard')->with('success', 'Selamat Datang Admin!');
         }
 
-        return redirect()->intended('/'); // User kembali ke home/map
+        // 2. Redirect Owner (BARU)
+        if ($role === 'owner') {
+            return redirect()->intended('/owner/dashboard')->with('success', 'Selamat Datang di Bengkel Anda!');
+        }
+
+        // 3. Redirect User Biasa
+        return redirect()->intended('/')->with('success', 'Login Berhasil!');
     }
     public function destroy(Request $request): RedirectResponse
     {
         Auth::guard('web')->logout();
 
         $request->session()->invalidate();
-
         $request->session()->regenerateToken();
 
-        return redirect('/');
+        // Pesan Sukses Logout
+        return redirect('/')->with('success', 'Logout Berhasil! Sampai Jumpa.');
     }
 }
