@@ -11,15 +11,23 @@ return new class extends Migration {
     public function up(): void
     {
         Schema::create('orders', function (Blueprint $table) {
+
+            $table->integer('total_harga')->default(0); // Harga total
+            $table->string('metode_pembayaran')->default('cod'); // cod / transfer
+            $table->string('payment_status')->default('unpaid'); // unpaid / paid
+
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Siapa yang pesan
             $table->foreignId('tambal_ban_id')->constrained()->onDelete('cascade'); // Bengkel mana
             $table->string('nama_pemesan');
             $table->string('nomer_telepon');
             $table->text('alamat_lengkap'); // Lokasi user
+            $table->string('latitude')->nullable();
+            $table->string('longitude')->nullable();
             $table->enum('jenis_kendaraan', ['motor', 'mobil']);
             $table->text('keluhan')->nullable(); // Misal: Ban bocor halus / robek
             $table->enum('status', ['pending', 'proses', 'selesai', 'batal'])->default('pending');
+            $table->string('alasan_batal')->nullable(); // <--- WAJIB ADA
             $table->timestamps();
         });
     }

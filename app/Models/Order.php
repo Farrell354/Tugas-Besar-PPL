@@ -20,7 +20,12 @@ class Order extends Model
         'status',
         'alasan_batal',
         'latitude',
-        'longitude'
+        'longitude',
+        'total_harga',
+        'metode_pembayaran',
+        'payment_status',
+        'keluhan',
+        'foto_ban',
     ];
 
     public function tambalBan()
