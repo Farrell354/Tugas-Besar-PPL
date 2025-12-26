@@ -72,9 +72,12 @@
 
     // ROUTE CHAT
     Route::middleware(['auth'])->group(function () {
-    Route::get('/chat/{order_id}', [ChatController::class, 'show'])->name('chat.show');
-    Route::post('/chat/{order_id}/send', [ChatController::class, 'send'])->name('chat.send');
-    Route::get('/chat/{order_id}/get', [ChatController::class, 'getMessages'])->name('chat.get');
+        Route::get('/chat/{order_id}', [ChatController::class, 'show'])->name('chat.show');
+        Route::post('/chat/{order_id}/send', [ChatController::class, 'send'])->name('chat.send');
+        Route::get('/chat/{order_id}/get', [ChatController::class, 'getMessages'])->name('chat.get');
     });
+
+    // ROUTE REVIEW 
+    Route::post('/review', [ReviewController::class, 'store'])->middleware('auth')->name('review.store');
 
     require __DIR__ . '/auth.php';
