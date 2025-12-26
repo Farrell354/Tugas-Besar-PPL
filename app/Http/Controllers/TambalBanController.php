@@ -16,9 +16,9 @@ class TambalBanController extends Controller
 
         if ($request->has('search') && $request->search != null) {
             $search = $request->search;
-            $query->where(function($q) use ($search) {
+            $query->where(function ($q) use ($search) {
                 $q->where('nama_bengkel', 'LIKE', "%{$search}%")
-                  ->orWhere('alamat', 'LIKE', "%{$search}%");
+                    ->orWhere('alamat', 'LIKE', "%{$search}%");
             });
         }
 
@@ -109,7 +109,11 @@ class TambalBanController extends Controller
         $tambalBan->delete();
         return redirect()->route('dashboard')->with('success', 'Lokasi berhasil dihapus');
     }
-
+    public function liveMap()
+    {
+        $lokasi = TambalBan::all();
+        return view('admin.live-map', compact('lokasi'));
+    }
     public function userDashboard()
     {
         $lokasi = TambalBan::all();
