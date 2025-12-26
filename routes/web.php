@@ -5,8 +5,8 @@
     use App\Models\TambalBan;
     use App\Http\Controllers\OrderController;
     use App\Http\Controllers\OwnerController;
-    use App\Http\Controllers\ProfileController; 
-    use App\Http\Controllers\ChatController;     
+    use App\Http\Controllers\ProfileController;
+    use App\Http\Controllers\ChatController;
     use App\Http\Controllers\ReviewController;
 
     /*
@@ -41,11 +41,9 @@
         Route::get('/profile', [App\Http\Controllers\ProfileController::class, 'edit'])->name('profile.edit');
         Route::patch('/profile', [App\Http\Controllers\ProfileController::class, 'update'])->name('profile.update');
         Route::delete('/profile', [App\Http\Controllers\ProfileController::class, 'destroy'])->name('profile.destroy');
-
         // Form Booking
         Route::get('/booking/{id}', [OrderController::class, 'create'])->name('booking.create');
         Route::post('/booking', [OrderController::class, 'store'])->name('booking.store');
-
         // Riwayat Booking
         Route::get('/riwayat-pesanan', [OrderController::class, 'history'])->name('booking.history');
         Route::get('/booking/{id}/detail', [OrderController::class, 'show'])->name('booking.show');
