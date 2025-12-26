@@ -68,4 +68,40 @@ class OrderController extends Controller
 
         return view('booking.show', compact('order'));
     }
+
+    public function adminIndex()
+    {
+        $orders = Order::with(['user', 'tambalBan'])->latest()->get();
+        return view('admin.orders.index', compact('orders'));
+    }
+
+    public function updateStatus(Request $request, $id)
+    {
+        $order = Order::findOrFail($id);
+
+        if ($request->has('action')) {
+            // Logic Tombol Cepat (Owner)
+            if ($request->action == 'accept') {
+                $order->update(['status' => 'proses']);
+            } elseif ($request->action == 'reject') {
+                $order->update(['status' => 'batal', 'alasan_batal' => $request->alasan ?? 'Ditolak Bengkel']);
+            } elseif ($request->action == 'finish') {
+                $order->update(['status' => 'selesai']);
+                // Jika COD, otomatis set Lunas saat selesai
+                if ($order->metode_pembayaran == 'cod') {
+                    $order->update(['payment_status' => 'paid']);
+                }
+            }
+        } else {
+            // Logic Dropdown Admin
+            $data = ['status' => $request->status];
+            if ($request->status == 'batal' && $request->alasan_batal) {
+                $data['alasan_batal'] = $request->alasan_batal;
+            }
+            $order->update($data);
+        }
+
+        return back()->with('success', 'Status pesanan diperbarui.');
+    }
+
 }
