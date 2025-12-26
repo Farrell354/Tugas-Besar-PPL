@@ -5,6 +5,9 @@
     use App\Models\TambalBan;
     use App\Http\Controllers\OrderController;
     use App\Http\Controllers\OwnerController;
+    use App\Http\Controllers\ProfileController; 
+    use App\Http\Controllers\ChatController;     
+    use App\Http\Controllers\ReviewController;
 
     /*
     |--------------------------------------------------------------------------
