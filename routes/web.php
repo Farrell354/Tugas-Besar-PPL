@@ -61,6 +61,14 @@
         Route::get('/orders', [OrderController::class, 'adminIndex'])->name('admin.orders.index');
         Route::patch('/orders/{id}/status', [OrderController::class, 'updateStatus'])->name('admin.orders.update');
         Route::get('/orders/{id}', [OrderController::class, 'adminShow'])->name('admin.orders.show');
+
+        // Visitor
+        // Halaman Statistik Pengunjung (BARU)
+        Route::get('/admin/statistik', [TambalBanController::class, 'statsPage'])->name('admin.stats');
+
+        // API Data Statistik
+        Route::get('/api/visitor-stats', [TambalBanController::class, 'getVisitorStats'])->name('api.visitor.stats');
+        Route::get('/api/visitor-stats', [VisitorController::class, 'getStats'])->name('api.visitor.stats');
     });
 
 

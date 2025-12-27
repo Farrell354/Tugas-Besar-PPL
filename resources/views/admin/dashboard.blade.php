@@ -56,57 +56,6 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <div class="bg-white p-6 rounded-xl shadow-sm border border-gray-100 lg:col-span-2">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold text-gray-800 text-lg">
-                            <i class="fa-solid fa-chart-line text-blue-500 mr-2"></i>Statistik Pengunjung
-                        </h3>
-                        <span class="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-100">7 Hari Terakhir</span>
-                    </div>
-                    <div class="relative h-72 w-full">
-                        <canvas id="visitorChart"></canvas>
-                    </div>
-                </div>
-
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col">
-                    <div class="p-5 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
-                        <h3 class="font-bold text-gray-800">Pengguna Baru</h3>
-                        <span class="bg-indigo-100 text-indigo-700 text-xs px-2 py-1 rounded-full font-bold">
-                            {{ $users->total() }} Total
-                        </span>
-                    </div>
-                    <div class="flex-1 overflow-y-auto max-h-[300px] p-2">
-                        @forelse($users as $user)
-                        <div class="flex items-center p-3 hover:bg-gray-50 rounded-lg transition">
-                            <div class="h-10 w-10 rounded-full bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-sm mr-3 shrink-0">
-                                {{ substr($user->name, 0, 1) }}
-                            </div>
-                            <div class="flex-1 min-w-0">
-                                <p class="text-sm font-bold text-gray-900 truncate">{{ $user->name }}</p>
-                                <p class="text-xs text-gray-500 truncate">{{ $user->email }}</p>
-                            </div>
-                            <div class="ml-2">
-                                @if($user->google_id)
-                                    <i class="fa-brands fa-google text-red-500 text-lg" title="Login Google"></i>
-                                @else
-                                    <i class="fa-solid fa-envelope text-gray-400 text-lg" title="Login Email"></i>
-                                @endif
-                            </div>
-                        </div>
-                        @empty
-                        <div class="text-center py-8 text-gray-400 text-sm">
-                            Belum ada user mendaftar.
-                        </div>
-                        @endforelse
-                    </div>
-                    <div class="p-3 border-t border-gray-100 bg-gray-50 rounded-b-xl">
-                        {{ $users->links() }} 
-                    </div>
-                </div>
-            </div>
-
             <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
                 
                 <div class="px-4 md:px-6 py-4 border-b border-gray-100 flex flex-col sm:flex-row items-center justify-between bg-gray-50/50 gap-4">
